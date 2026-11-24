@@ -1,6 +1,7 @@
 package it.unibo.oop.lab.lambda;
 
 import java.util.ArrayList;
+import static java.util.Collections.emptyMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +13,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
+import java.util.TreeSet;
 
 /**
  * This class will contain four utility functions on lists and maps, of which the first one is provided as example.
@@ -68,7 +67,14 @@ public final class LambdaUtilities {
         /*
          * Suggestion: consider Optional.filter
          */
-        return emptyList();
+        //prima optional list
+        final List<Optional<T>> olist = new ArrayList<>();
+        list.forEach(el -> olist.add(Optional.ofNullable(el)));
+        //seconda optional list
+        final List<Optional<T>> olist2 = new ArrayList<>();
+        olist.forEach(el -> olist2.add(el.filter(pre)));
+        //return emptyList();
+        return olist2;
     }
 
     /**
@@ -89,7 +95,24 @@ public final class LambdaUtilities {
         /*
          * Suggestion: consider Map.merge
          */
-        return emptyMap();
+        final Map<R, Set<T>> hashMap = new HashMap<>();
+        list.forEach(el ->{
+            final R elKey = op.apply(el);
+            //elSet is the set that contains only el, for working with the map
+            final Set<T> elSet = new TreeSet<>();
+            elSet.add(el);
+            if (hashMap.containsKey(elKey)) {
+                hashMap.merge(elKey, elSet, (exSet, newSet) -> {
+                    exSet.addAll(newSet);
+                    return exSet;
+                });
+            }
+            else {
+                hashMap.put(elKey, elSet);
+            }
+        });
+        
+        return hashMap;
     }
 
     /**
