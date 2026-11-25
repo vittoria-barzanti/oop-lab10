@@ -1,7 +1,9 @@
 package it.unibo.oop.lab.streams;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,42 +34,102 @@ public final class MusicGroupImpl implements MusicGroup {
 
     @Override
     public Stream<String> orderedSongNames() {
-        return null;
+        final Set<String> songsName = new LinkedHashSet<>();
+        songs.forEach(el -> songsName.add(el.getSongName()));
+        //final Stream<String> songSorted = songsName.stream().sorted();
+        return songsName.stream().sorted();
     }
 
     @Override
     public Stream<String> albumNames() {
-        return null;
+        final Set<String> albumNamesSet = new LinkedHashSet<>();
+        albums.forEach((name, year) -> albumNamesSet.add(name));
+        //final Stream<String> albumNames = albumNamesSet.stream();
+        return albumNamesSet.stream();
     }
 
     @Override
     public Stream<String> albumInYear(final int year) {
-        return null;
+        final Set<String> albumInYearSet = new LinkedHashSet<>();
+        albums.forEach((name, yearA) -> {
+            if (yearA.equals(year)) {
+                albumInYearSet.add(name);
+            }
+        });
+        //final Stream<String> albumInYear = albumInYearSet.stream();
+        return albumInYearSet.stream();
     }
 
     @Override
     public int countSongs(final String albumName) {
-        return -1;
+        final Optional<String> albumNameOp = Optional.of(albumName);
+        final int[] nSongs = {0};
+        songs.forEach(el -> {
+            if (el.getAlbumName().equals(albumNameOp)) {
+                nSongs[0]++;
+            }
+        });
+        return nSongs[0];
     }
 
     @Override
     public int countSongsInNoAlbum() {
-        return -1;
+        final int[] nSongs = {0};
+        songs.forEach(el -> {
+            if (el.getAlbumName().isEmpty()) {
+                nSongs[0]++;
+            }
+        });
+        return nSongs[0];
     }
 
     @Override
     public OptionalDouble averageDurationOfSongs(final String albumName) {
-        return OptionalDouble.empty();
+        final double[] durationMedia = {0, 0, 0};
+        final Optional<String> albumNameOp = Optional.of(albumName);
+        songs.forEach(el -> {
+            if (el.getAlbumName().equals(albumNameOp)) {
+                durationMedia[0] += el.getDuration();
+                durationMedia[1]++;
+            }
+        });
+        durationMedia[2] = durationMedia[0] / durationMedia[1];
+        //final OptionalDouble durationMediaOp = OptionalDouble.of(durationMedia[2]);
+        return OptionalDouble.of(durationMedia[2]);
     }
 
     @Override
     public Optional<String> longestSong() {
-        return Optional.empty();
+        final List<Optional<String>> longestSong = new ArrayList<>();
+        longestSong.add(Optional.empty());
+        final double[] duration = {0.0};
+        songs.forEach(el -> {
+            if (el.getDuration() > duration[0]) {
+                longestSong.add(0, Optional.of(el.getSongName()));
+                duration[0] = el.getDuration();
+            }
+        });
+        return longestSong.getFirst();
     }
 
     @Override
     public Optional<String> longestAlbum() {
-        return Optional.empty();
+        final List<Optional<String>> longestAlbum = new ArrayList<>();
+        longestAlbum.add(Optional.empty());
+        final double[] duration = {0.0};
+        albums.forEach((name, year) -> {
+            final Optional<String> albumOp = Optional.of(name);
+            final double[] albumDuration = {0};
+            songs.forEach(song -> {
+                if (song.getAlbumName().equals(albumOp)) {
+                    albumDuration[0] += song.getDuration();
+                }
+            });
+            if (albumDuration[0] > duration[0]) {
+                longestAlbum.add(0, albumOp);
+            }
+        });
+        return longestAlbum.getFirst();
     }
 
     private static final class Song {
