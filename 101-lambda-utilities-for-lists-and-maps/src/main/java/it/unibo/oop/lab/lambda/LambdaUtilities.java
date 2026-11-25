@@ -1,19 +1,18 @@
 package it.unibo.oop.lab.lambda;
 
 import java.util.ArrayList;
-import static java.util.Collections.emptyMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.TreeSet;
 
 /**
  * This class will contain four utility functions on lists and maps, of which the first one is provided as example.
@@ -96,7 +95,7 @@ public final class LambdaUtilities {
          * Suggestion: consider Map.merge
          */
         final Map<R, Set<T>> hashMap = new HashMap<>();
-        list.forEach(el ->{
+        list.forEach(el -> {
             final R elKey = op.apply(el);
             //elSet is the set that contains only el, for working with the map
             final Set<T> elSet = new TreeSet<>();
@@ -106,12 +105,10 @@ public final class LambdaUtilities {
                     exSet.addAll(newSet);
                     return exSet;
                 });
-            }
-            else {
+            } else {
                 hashMap.put(elKey, elSet);
             }
         });
-        
         return hashMap;
     }
 
@@ -135,7 +132,18 @@ public final class LambdaUtilities {
          *
          * Keep in mind that a map can be iterated through its forEach method
          */
-        return emptyMap();
+        final Map<K, V> map2 = new HashMap<>();
+        for (final Map.Entry<K, Optional<V>> entry : map.entrySet()) {
+            final V other = def.get();
+            final Optional<V> value = entry.getValue();
+            final K key = entry.getKey();
+            if (value.orElse(other).equals(other)) {
+                map2.put(key, other);
+            } else {
+                map2.put(key, value.get());
+            }
+        }
+        return map2;
     }
 
     /**
